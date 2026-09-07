@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Documento de Impresión</title>
+    <style>
+        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #333; margin: 0; padding: 20px; background: #fff; }
+        .invoice-box { max-width: 800px; margin: auto; padding: 30px; border: 1px solid #eee; box-shadow: 0 0 10px rgba(0, 0, 0, 0.15); font-size: 16px; line-height: 24px; }
+        .header-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        .header-table td { vertical-align: top; }
+        .logo { max-width: 150px; height: auto; }
+        .invoice-info { text-align: right; }
+        .items-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .items-table th, .items-table td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        .items-table th { background-color: #f8f8f8; color: #333; font-weight: bold; }
+        .text-right { text-align: right; }
+        .total-section { margin-top: 20px; text-align: right; font-size: 18px; font-weight: bold; }
+
+        @media print {
+            body { padding: 0; }
+            .invoice-box { border: none; box-shadow: none; padding: 0; max-width: 100%; }
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-box">
+        <table class="header-table">
+            <tr>
+                <td>
+                    <img src="https://via.placeholder.com/150x50" class="logo" alt="Logo" id="img-logo">
+                </td>
+                <td class="invoice-info">
+                    <h2>FACTURA</h2>
+                    <p><strong>Nº:</strong> <span id="lbl-factura"></span><br>
+                    <strong>Fecha:</strong> <span id="lbl-fecha"></span><br>
+                    <strong>Cliente:</strong> <span id="lbl-cliente"></span></p>
+                </td>
+            </tr>
+        </table>
+
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th>Descripción</th>
+                    <th class="text-right">Cant.</th>
+                    <th class="text-right">Precio</th>
+                    <th class="text-right">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td id="lbl-producto"></td>
+                    <td class="text-right" id="lbl-cantidad"></td>
+                    <td class="text-right" id="lbl-precio"></td>
+                    <td class="text-right" id="lbl-total"></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="total-section">
+            Total a Pagar: <span id="lbl-gran-total"></span>
+        </div>
+    </div>
+
+    <script>
+        const p = new URLSearchParams(window.location.search);
+        
+        document.getElementById('lbl-factura').innerText = p.get('factura') || '001';
+        document.getElementById('lbl-fecha').innerText = p.get('fecha') || '-';
+        document.getElementById('lbl-cliente').innerText = p.get('cliente') || '-';
+        document.getElementById('lbl-producto').innerText = p.get('producto') || '-';
+        document.getElementById('lbl-cantidad').innerText = p.get('cantidad') || '1';
+        document.getElementById('lbl-precio').innerText = '$' + (p.get('precio') || '0.00');
+        document.getElementById('lbl-total').innerText = '$' + (p.get('total') || '0.00');
+        document.getElementById('lbl-gran-total').innerText = '$' + (p.get('total') || '0.00');
+
+        if(p.get('logo')) {
+            document.getElementById('img-logo').src = p.get('logo');
+        }
+
+        window.onload = function() {
+            window.print();
+        };
+    </script>
+</body>
+</html>
