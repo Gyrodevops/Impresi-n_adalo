@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Documento de Impresión</title>
+    <title>Factura Oficial</title>
     <style>
         body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #333; margin: 0; padding: 20px; background: #fff; }
         .invoice-box { max-width: 800px; margin: auto; padding: 30px; border: 1px solid #eee; box-shadow: 0 0 10px rgba(0, 0, 0, 0.15); font-size: 16px; line-height: 24px; }
@@ -48,18 +48,13 @@
                     <th class="text-right">Total</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td id="lbl-producto"></td>
-                    <td class="text-right" id="lbl-cantidad"></td>
-                    <td class="text-right" id="lbl-precio"></td>
-                    <td class="text-right" id="lbl-total"></td>
-                </tr>
+            <tbody id="tabla-productos">
+                <!-- Los productos se llenarán dinámicamente -->
             </tbody>
         </table>
 
         <div class="total-section">
-            Total a Pagar: <span id="lbl-gran-total"></span>
+            Total a Pagar: <span id="lbl-gran-total">$0.00</span>
         </div>
     </div>
 
@@ -69,15 +64,36 @@
         document.getElementById('lbl-factura').innerText = p.get('factura') || '001';
         document.getElementById('lbl-fecha').innerText = p.get('fecha') || '-';
         document.getElementById('lbl-cliente').innerText = p.get('cliente') || '-';
-        document.getElementById('lbl-producto').innerText = p.get('producto') || '-';
-        document.getElementById('lbl-cantidad').innerText = p.get('cantidad') || '1';
-        document.getElementById('lbl-precio').innerText = '$' + (p.get('precio') || '0.00');
-        document.getElementById('lbl-total').innerText = '$' + (p.get('total') || '0.00');
-        document.getElementById('lbl-gran-total').innerText = '$' + (p.get('total') || '0.00');
 
         if(p.get('logo')) {
             document.getElementById('img-logo').src = p.get('logo');
         }
+
+        // Recibir listas separadas por '|'
+        const productos = (p.get('productos') || 'Item genérico').split('|');
+        const cantidades = (p.get('cantidades') || '1').split('|');
+        const precios = (p.get('precios') || '0.00').split('|');
+
+        const tbody = document.getElementById('tabla-productos');
+        tbody.innerHTML = '';
+        let granTotal = 0;
+
+        for (let i = 0; i < productos.length; i++) {
+            let cant = parseFloat(cantidades[i]) || 1;
+            let precio = parseFloat(precios[i]) || 0;
+            let totalFila = cant * precio;
+            granTotal += totalFila;
+
+            let fila = `<tr>
+                <td>${productos[i]}</td>
+                <td class="text-right">${cant}</td>
+                <td class="text-right">$${precio.toFixed(2)}</td>
+                <td class="text-right">$${totalFila.toFixed(2)}</td>
+            </tr>`;
+            tbody.innerHTML += fila;
+        }
+
+        document.getElementById('lbl-gran-total').innerText = '$' + granTotal.toFixed(2);
 
         window.onload = function() {
             window.print();
