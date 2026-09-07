@@ -2,100 +2,54 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Factura Oficial</title>
+    <title>Impresión de Pantalla</title>
     <style>
-        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #333; margin: 0; padding: 20px; background: #fff; }
-        .invoice-box { max-width: 800px; margin: auto; padding: 30px; border: 1px solid #eee; box-shadow: 0 0 10px rgba(0, 0, 0, 0.15); font-size: 16px; line-height: 24px; }
-        .header-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        .header-table td { vertical-align: top; }
-        .logo { max-width: 150px; height: auto; }
-        .invoice-info { text-align: right; }
-        .items-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        .items-table th, .items-table td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
-        .items-table th { background-color: #f8f8f8; color: #333; font-weight: bold; }
-        .text-right { text-align: right; }
-        .total-section { margin-top: 20px; text-align: right; font-size: 18px; font-weight: bold; }
-
+        body { 
+            margin: 0; 
+            padding: 0; 
+            background: #fff; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .print-container {
+            width: 100%;
+            text-align: center;
+        }
+        img { 
+            max-width: 100%; 
+            height: auto; 
+            display: block;
+            margin: 0 auto;
+        }
         @media print {
-            body { padding: 0; }
-            .invoice-box { border: none; box-shadow: none; padding: 0; max-width: 100%; }
-            .no-print { display: none !important; }
+            body { 
+                height: auto; 
+            }
+            .no-print { 
+                display: none !important; 
+            }
         }
     </style>
 </head>
 <body>
-    <div class="invoice-box">
-        <table class="header-table">
-            <tr>
-                <td>
-                    <img src="https://via.placeholder.com/150x50" class="logo" alt="Logo" id="img-logo">
-                </td>
-                <td class="invoice-info">
-                    <h2>FACTURA</h2>
-                    <p><strong>Nº:</strong> <span id="lbl-factura"></span><br>
-                    <strong>Fecha:</strong> <span id="lbl-fecha"></span><br>
-                    <strong>Cliente:</strong> <span id="lbl-cliente"></span></p>
-                </td>
-            </tr>
-        </table>
-
-        <table class="items-table">
-            <thead>
-                <tr>
-                    <th>Descripción</th>
-                    <th class="text-right">Cant.</th>
-                    <th class="text-right">Precio</th>
-                    <th class="text-right">Total</th>
-                </tr>
-            </thead>
-            <tbody id="tabla-productos">
-                <!-- Los productos se llenarán dinámicamente -->
-            </tbody>
-        </table>
-
-        <div class="total-section">
-            Total a Pagar: <span id="lbl-gran-total">$0.00</span>
-        </div>
+    <div class="print-container">
+        <img id="pantalla-img" src="" alt="Cargando impresión...">
     </div>
 
     <script>
         const p = new URLSearchParams(window.location.search);
-        
-        document.getElementById('lbl-factura').innerText = p.get('factura') || '001';
-        document.getElementById('lbl-fecha').innerText = p.get('fecha') || '-';
-        document.getElementById('lbl-cliente').innerText = p.get('cliente') || '-';
+        const imageUrl = p.get('img');
 
-        if(p.get('logo')) {
-            document.getElementById('img-logo').src = p.get('logo');
+        if (imageUrl) {
+            document.getElementById('pantalla-img').src = decodeURIComponent(imageUrl);
+        } else {
+            document.getElementById('pantalla-img').alt = 'No se encontró la imagen a imprimir.';
         }
 
-        // Recibir listas separadas por '|'
-        const productos = (p.get('productos') || 'Item genérico').split('|');
-        const cantidades = (p.get('cantidades') || '1').split('|');
-        const precios = (p.get('precios') || '0.00').split('|');
-
-        const tbody = document.getElementById('tabla-productos');
-        tbody.innerHTML = '';
-        let granTotal = 0;
-
-        for (let i = 0; i < productos.length; i++) {
-            let cant = parseFloat(cantidades[i]) || 1;
-            let precio = parseFloat(precios[i]) || 0;
-            let totalFila = cant * precio;
-            granTotal += totalFila;
-
-            let fila = `<tr>
-                <td>${productos[i]}</td>
-                <td class="text-right">${cant}</td>
-                <td class="text-right">$${precio.toFixed(2)}</td>
-                <td class="text-right">$${totalFila.toFixed(2)}</td>
-            </tr>`;
-            tbody.innerHTML += fila;
-        }
-
-        document.getElementById('lbl-gran-total').innerText = '$' + granTotal.toFixed(2);
-
-        window.onload = function() {
+        // Esperar a que la imagen cargue completamente antes de imprimir
+        document.getElementById('pantalla-img').onload = function() {
             window.print();
         };
     </script>
