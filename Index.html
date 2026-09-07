@@ -2,55 +2,81 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Impresión de Pantalla</title>
+    <title>Documento Generado</title>
     <style>
         body { 
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
+            color: #333; 
             margin: 0; 
-            padding: 0; 
-            background: #fff; 
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            padding: 20px; 
+            background: #f4f4f9; 
         }
-        .print-container {
-            width: 100%;
+        .page-container { 
+            max-width: 800px; 
+            margin: auto; 
+            background: #fff;
+            padding: 40px; 
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); 
+        }
+        h2 { color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .content-box { margin-top: 20px; font-size: 16px; line-height: 1.6; white-space: pre-line; }
+        
+        /* Botón flotante superior para imprimir/guardar sin depender solo del script */
+        .no-print {
             text-align: center;
+            margin-bottom: 20px;
         }
-        img { 
-            max-width: 100%; 
-            height: auto; 
-            display: block;
-            margin: 0 auto;
+        .btn-print {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
+        .btn-print:hover { background-color: #2980b9; }
+
+        /* Reglas estrictas para cuando el navegador exporta a PDF o Imprime */
         @media print {
-            body { 
-                height: auto; 
-            }
-            .no-print { 
-                display: none !important; 
-            }
+            body { background: #fff; padding: 0; }
+            .page-container { box-shadow: none; padding: 0; max-width: 100%; border-radius: 0; }
+            .no-print { display: none !important; }
         }
     </style>
 </head>
 <body>
-    <div class="print-container">
-        <img id="pantalla-img" src="" alt="Cargando impresión...">
+
+    <!-- Botón visible en pantalla que desaparece automáticamente al exportar a PDF -->
+    <div class="no-print">
+        <button class="btn-print" onclick="window.print()">🖨️ Guardar como PDF / Imprimir</button>
+    </div>
+
+    <div class="page-container">
+        <h2 id="titulo-doc">Documento</h2>
+        <div class="content-box" id="contenido-doc">
+            Cargando información...
+        </div>
     </div>
 
     <script>
         const p = new URLSearchParams(window.location.search);
-        const imageUrl = p.get('img');
+        
+        // Recibe el título y el cuerpo de la información desde Adalo
+        const titulo = p.get('titulo') || 'Reporte de Pantalla';
+        const contenido = p.get('contenido') || 'No se recibieron datos para mostrar.';
 
-        if (imageUrl) {
-            document.getElementById('pantalla-img').src = decodeURIComponent(imageUrl);
-        } else {
-            document.getElementById('pantalla-img').alt = 'No se encontró la imagen a imprimir.';
-        }
+        document.getElementById('titulo-doc').innerText = titulo;
+        
+        // Reemplaza los guiones bajos por saltos de línea reales si mandas texto largo
+        document.getElementById('contenido-doc').innerText = decodeURIComponent(contenido);
 
-        // Esperar a que la imagen cargue completamente antes de imprimir
-        document.getElementById('pantalla-img').onload = function() {
-            window.print();
+        // Opcional: Abre el cuadro de impresión automáticamente al abrir la página
+        // (En algunos móviles o navegadores es mejor dejar el botón visible para que el usuario decida)
+        window.onload = function() {
+            // window.print(); // Descomenta esta línea si quieres que salte directo el diálogo
         };
     </script>
 </body>
